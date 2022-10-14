@@ -101,7 +101,7 @@ class DropColumnsTransformer(BaseEstimator, TransformerMixin):
     result = self.transform(X)
     return result
   
-  # PEARSON TRANSFORMER
+# PEARSON TRANSFORMER
 class PearsonTransformer(BaseEstimator, TransformerMixin):
   def __init__(self, threshold):
     assert (type(threshold) == int or type(threshold) == float), f'{self.__class__.__name__} constructor expected a number but got {type(threshold)} instead.'
