@@ -152,3 +152,42 @@ class Sigma3Transformer(BaseEstimator, TransformerMixin):
   def fit_transform(self, X, y = None):
     result = self.transform(X)
     return result
+  
+# TUKEY TRANSFORMER
+class TukeyTransformer(BaseEstimator, TransformerMixin):
+  def __init__(self, column_name, fence):
+    self.column_name = column_name
+    self.fence = fence
+
+  def fit(self, X, y = None):
+    print(f"\nWarning: {self.__class__.__name__}.fit does nothing.\n")
+    return X
+
+  def transform(self, df):
+    assert isinstance(df, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(df)} instead.'
+    assert self.column_name in df.columns.to_list(), f'{self.__class__.__name__}.transform unknown column "{self.column_name}"'  
+    assert self.fence in ('inner', 'outer'), f'{self.__class__.__name__}.transform unknown fence condition"{self.fence}"'
+    assert all([isinstance(v, (int, float)) for v in df[self.column_name].to_list()])
+
+    q1 = df[self.column_name].quantile(0.25)
+    q3 = df[self.column_name].quantile(0.75)
+    iqr = q3-q1
+    if self.fence == 'inner':
+      k = 1.5
+    elif self.fence == 'outer':
+      k = 3
+    else:
+      print('Something went horribly wrong! Exiting...')
+      exit()
+    
+    low = q1 - k * iqr
+    high = q3 + k * iqr  
+
+    df1 = df.copy()
+    df1[self.column_name] = df[self.column_name].clip(lower=low, upper=high)
+    return df1
+
+  def fit_transform(self, X, y = None):
+    result = self.transform(X)
+    return result
+  
