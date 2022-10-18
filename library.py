@@ -155,8 +155,8 @@ class Sigma3Transformer(BaseEstimator, TransformerMixin):
   
 # TUKEY TRANSFORMER
 class TukeyTransformer(BaseEstimator, TransformerMixin):
-  def __init__(self, column_name, fence):
-    self.column_name = column_name
+  def __init__(self, target_column, fence):
+    self.target_column = target_column
     self.fence = fence
 
   def fit(self, X, y = None):
@@ -165,12 +165,12 @@ class TukeyTransformer(BaseEstimator, TransformerMixin):
 
   def transform(self, df):
     assert isinstance(df, pd.core.frame.DataFrame), f'{self.__class__.__name__}.transform expected Dataframe but got {type(df)} instead.'
-    assert self.column_name in df.columns.to_list(), f'{self.__class__.__name__}.transform unknown column "{self.column_name}"'  
+    assert self.target_column in df.columns.to_list(), f'{self.__class__.__name__}.transform unknown column "{self.target_column}"'  
     assert self.fence in ('inner', 'outer'), f'{self.__class__.__name__}.transform unknown fence condition"{self.fence}"'
-    assert all([isinstance(v, (int, float)) for v in df[self.column_name].to_list()])
+    assert all([isinstance(v, (int, float)) for v in df[self.target_column].to_list()])
 
-    q1 = df[self.column_name].quantile(0.25)
-    q3 = df[self.column_name].quantile(0.75)
+    q1 = df[self.target_column].quantile(0.25)
+    q3 = df[self.target_column].quantile(0.75)
     iqr = q3-q1
     if self.fence == 'inner':
       k = 1.5
@@ -184,7 +184,7 @@ class TukeyTransformer(BaseEstimator, TransformerMixin):
     high = q3 + k * iqr  
 
     df1 = df.copy()
-    df1[self.column_name] = df[self.column_name].clip(lower=low, upper=high)
+    df1[self.target_column] = df[self.target_column].clip(lower=low, upper=high)
     return df1
 
   def fit_transform(self, X, y = None):
