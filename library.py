@@ -208,7 +208,7 @@ class MinMaxTransformer(BaseEstimator, TransformerMixin):
     
     col_names = []  #list for column names
     new_df = df.copy() # copy the df
-    col_names = [i[0] for i in new_df] # copy the column names
+    col_names = [new_df.columns] # copy the column names
     scaler = self.MinMaxScaler() # run the scaler from internal import
     numpy_result = scaler.fit_transform(new_df) # do the transform  
     new_df = pd.DataFrame(numpy_result) # turn the result back into a dataframe
