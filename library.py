@@ -34,6 +34,7 @@ class MappingTransformer(BaseEstimator, TransformerMixin):
 
     X_ = X.copy()
     X_[self.mapping_column].replace(self.mapping_dict, inplace=True)
+    print(len(X_))
     return X_
 
   def fit_transform(self, X, y = None):
@@ -62,7 +63,8 @@ class OHETransformer(BaseEstimator, TransformerMixin):
                            columns=[self.target_column],
                            dummy_na=self.dummy_na,    
                            drop_first=self.drop_first)
-
+    
+    print(len(X1))
     return X1
 
   def fit_transform(self, X, y = None):
@@ -97,7 +99,8 @@ class DropColumnsTransformer(BaseEstimator, TransformerMixin):
     else: # and this is the "something went wrong" option that just exits out of the program
       print('Something went terribly, terribly wrong!')
       exit()
-
+    
+    print(len(X1))
     return X1
 
   def fit_transform(self, X, y = None):
@@ -124,6 +127,7 @@ class PearsonTransformer(BaseEstimator, TransformerMixin):
     correlated_columns = [masked_df.columns.values[j] for i, j in enumerate(column_ind)]
     new_df = transformed_df.drop(columns=correlated_columns)
     
+    print(len(new_df))
     return new_df
 
   def fit_transform(self, X, y = None):
@@ -150,6 +154,8 @@ class Sigma3Transformer(BaseEstimator, TransformerMixin):
    
     df1 = df.copy()
     df1[self.column_name] = df[self.column_name].clip(lower=s3min, upper=s3max)
+    
+    print(len(df1))
     return df1
 
   def fit_transform(self, X, y = None):
@@ -188,6 +194,8 @@ class TukeyTransformer(BaseEstimator, TransformerMixin):
 
     df1 = df.copy()
     df1[self.target_column] = df[self.target_column].clip(lower=low, upper=high)
+    
+    print(len(df1))
     return df1
 
   def fit_transform(self, X, y = None):
@@ -204,6 +212,8 @@ class MinMaxTransformer(BaseEstimator, TransformerMixin):
   #fill in rest below
   def fit(self, X, y = None):
     print(f"\nWarning: {self.__class__.__name__}.fit does nothing.\n")
+    
+    print(len(X))
     return X
 
   def transform(self, df):
@@ -248,6 +258,7 @@ class KNNTransformer(BaseEstimator, TransformerMixin):
     new_df = pd.DataFrame(imputer.fit_transform(df))
     new_df.columns = col_names
     
+    print(len(new_df))
     return new_df
 
   def fit_transform(self, X, y = None):
