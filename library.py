@@ -193,7 +193,7 @@ class TukeyTransformer(BaseEstimator, TransformerMixin):
     high = q3 + k * iqr  
 
     df6_copy = df6.copy()
-    df6_copy[self.target_column] = df[self.target_column].clip(lower=low, upper=high)
+    df6_copy[self.target_column] = df6[self.target_column].clip(lower=low, upper=high)
     
     #print(len(df6_copy))
     return df6_copy
