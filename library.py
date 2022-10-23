@@ -95,7 +95,7 @@ class DropColumnsTransformer(BaseEstimator, TransformerMixin):
     elif self.action == 'keep': # if twe are keeping columns
       #check using assertion if the column list is a subset of the database column list
       assert set(self.column_list) <= set(X.columns.to_list()), f'{self.__class__.__name__} does not contain these columns to keep: "{missing_columns}"' 
-      X1 = X[self.column_list] # if no assert error happened here we are keeping the list of columns
+      X1 = X1[self.column_list] # if no assert error happened here we are keeping the list of columns
     else: # and this is the "something went wrong" option that just exits out of the program
       print('Something went terribly, terribly wrong!')
       exit()
