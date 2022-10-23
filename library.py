@@ -94,7 +94,7 @@ class DropColumnsTransformer(BaseEstimator, TransformerMixin):
       df3_copy = df3.drop(columns=self.column_list, errors = 'ignore')  # then drop them while ignoring errors
     elif self.action == 'keep': # if twe are keeping columns
       #check using assertion if the column list is a subset of the database column list
-      assert set(self.column_list) <= set(df.columns.to_list()), f'{self.__class__.__name__} does not contain these columns to keep: "{missing_columns}"' 
+      assert set(self.column_list) <= set(df3.columns.to_list()), f'{self.__class__.__name__} does not contain these columns to keep: "{missing_columns}"' 
       df3_copy = titanic_features[self.column_list] # if no assert error happened here we are keeping the list of columns
     else: # and this is the "something went wrong" option that just exits out of the program
       print('Something went terribly, terribly wrong!')
