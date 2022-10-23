@@ -99,8 +99,7 @@ class DropColumnsTransformer(BaseEstimator, TransformerMixin):
     else: # and this is the "something went wrong" option that just exits out of the program
       print('Something went terribly, terribly wrong!')
       exit()
-    
-    #print(len(X1))
+
     return X1
 
   def fit_transform(self, X, y = None):
