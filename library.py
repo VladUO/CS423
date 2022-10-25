@@ -265,3 +265,29 @@ class KNNTransformer(BaseEstimator, TransformerMixin):
   def fit_transform(self, X, y = None):
     result = self.transform(X)
     return result
+  
+ # Find Random State function 
+def find_random_state(features_df, labels, n=200):
+  assert isinstance(features_df, pd.core.frame.DataFrame), f'expected a Dataframe but got {type(features_df)} instead.'
+  # assert isinstance(labels, list), f'expected a list but got {type(labels)} instead.'
+  assert (type(n) == int and n > 0), f'expected n to be a positive integer, got a {n} instead.'
+  
+  var = []  
+  for i in range(1, n):
+    train_X, test_X, train_y, test_y = train_test_split(features_df,
+                                                        labels,
+                                                        test_size=0.2,
+                                                        shuffle=True,
+                                                        random_state=i,
+                                                        stratify=labels)
+    model.fit(train_X, train_y)                #train model
+    train_pred = model.predict(train_X)        #predict against training set
+    test_pred = model.predict(test_X)          #predict against test set
+    train_f1 = f1_score(train_y, train_pred)   #F1 on training predictions
+    test_f1 = f1_score(test_y, test_pred)      #F1 on test predictions
+    f1_ratio = test_f1/train_f1                #take the ratio
+    var.append(f1_ratio)
+
+  rs_value = sum(var)/len(var)                   #get average ratio value
+  idx = np.array(abs(var - rs_value)).argmin()   #find the index of the smallest value
+  return idx
