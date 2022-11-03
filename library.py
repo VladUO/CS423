@@ -266,7 +266,7 @@ class KNNTransformer(BaseEstimator, TransformerMixin):
     result = self.transform(X)
     return result
   
- # Find Random State function 
+# FIND RANDOM STATE FUNCTION 
 def find_random_state(features_df, labels, n=200):
   assert isinstance(features_df, pd.core.frame.DataFrame), f'expected a Dataframe but got {type(features_df)} instead.'
   # assert isinstance(labels, list), f'expected a list but got {type(labels)} instead.'
@@ -291,3 +291,74 @@ def find_random_state(features_df, labels, n=200):
   rs_value = sum(var)/len(var)                   #get average ratio value
   idx = np.array(abs(var - rs_value)).argmin()   #find the index of the smallest value
   return idx
+
+# DATASET SETUP FUNCTION (GENERIC)
+def dataset_setup(full_table, label_column_name:str, the_transformer, rs, ts=.2):
+  from sklearn.model_selection import train_test_split
+  
+  assert isinstance(full_table, pd.core.frame.DataFrame), f'Expected a Dataframe but got {type(full_table)} instead.'
+  assert label_column_name in full_table.columns.to_list(), f'Unknown column: "{label_column_name}"'
+  assert isinstance(rs, int), f'The rs value has to be a positive int, you provided: {rs}'
+  assert isinstance(ts, (int, float)), f'The ts value has to be a positive int or float, you provided: {ts}'
+
+  full_table_features = full_table.drop(columns=label_column_name)
+  labels = full_table[label_column_name].to_list()
+
+  X_train, X_test, y_train, y_test = train_test_split(full_table_features,
+                                                      labels,
+                                                      test_size=ts,
+                                                      shuffle=True,
+                                                      random_state=rs,
+                                                      stratify=labels)
+  
+  X_train_transformed = the_transformer.fit_transform(X_train)
+  X_test_transformed = the_transformer.fit_transform(X_test)
+  
+  x_trained_numpy = X_train_transformed.to_numpy()
+  x_test_numpy = X_test_transformed.to_numpy()
+  y_train_numpy = np.array(y_train)
+  y_test_numpy = np.array(y_test)
+
+  return x_trained_numpy, x_test_numpy, y_train_numpy, y_test_numpy
+
+
+# TITANIC TABLE SPECIFIC TRANSFORMER PIPELINE
+titanic_transformer = Pipeline(steps=[
+  ('drop', DropColumnsTransformer(['Age', 'Gender', 'Class', 'Joined', 'Married',  'Fare'], 'keep')),
+  ('gender', MappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+  ('class', MappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+  ('ohe', OHETransformer(target_column='Joined')),
+  ('age', TukeyTransformer(target_column='Age', fence='outer')), #from chapter 4
+  ('fare', TukeyTransformer(target_column='Fare', fence='outer')), #from chapter 4
+  ('minmax', MinMaxTransformer()),  #from chapter 5
+  ('imputer', KNNTransformer())  #from chapter 6
+  ], verbose=True)
+
+# TITANIC TABLE SPECIFIC SETUP FUNCTION
+def titanic_setup(titanic_table, transformer=titanic_transformer, rs=40, ts=.2):
+  x_trained_numpy, x_test_numpy, y_train_numpy,  y_test_numpy = dataset_setup(titanic_table, 'Survived',
+                                                                              transformer,
+                                                                              rs, 
+                                                                              ts)
+  return x_trained_numpy, x_test_numpy, y_train_numpy,  y_test_numpy
+
+# CUSTOMER TABLE SPECIFIC TRANSFORMER PIPELINE
+customer_transformer = Pipeline(steps=[
+  ('id', DropColumnsTransformer(column_list=['ID'])),
+  ('os', OHETransformer(target_column='OS')),
+  ('isp', OHETransformer(target_column='ISP')),
+  ('level', MappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high':2})),
+  ('gender', MappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+  ('time spent', TukeyTransformer('Time Spent', 'inner')),
+  ('minmax', MinMaxTransformer()),
+  ('imputer', KNNTransformer())
+  ], verbose=True)
+
+# CUSTOMER TABLE SPECIFIC SETUP FUNCTION
+def customer_setup(customer_table, transformer=customer_transformer, rs=76, ts=.2):
+  x_trained_numpy, x_test_numpy, y_train_numpy,  y_test_numpy = dataset_setup(customer_table, 'Rating',
+                                                                              transformer,
+                                                                              rs, 
+                                                                              ts)
+  return x_trained_numpy, x_test_numpy, y_train_numpy,  y_test_numpy
+
