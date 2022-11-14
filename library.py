@@ -7,7 +7,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import HalvingGridSearchCV
-
 # MAPPING TRANSFORMER
 class MappingTransformer(BaseEstimator, TransformerMixin):
   def __init__(self, mapping_column, mapping_dict:dict):
